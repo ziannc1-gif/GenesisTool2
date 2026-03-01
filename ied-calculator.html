@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapleStory Boss Defense Calculator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Hide up/down arrows on number inputs */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* Hide scrollbar for navbar on mobile */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-100 flex flex-col">
+
+    <!-- Global Navbar -->
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center h-16 overflow-x-auto hide-scrollbar">
+                <div class="flex items-center space-x-2 sm:space-x-4 min-w-max">
+                    <a href="index.html" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">Neso Cycle Timer</a>
+                    
+                    <a href="maple-tracker.html" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">Maple Event</a>
+                    
+                    <!-- Active Page (Indigo Glow) -->
+                    <a href="#" class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-inner">Boss Defense Calculator</a>
+                    
+                    <a href="https://maplen.gg/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">MapleN.gg</a>
+                    <a href="https://maplesprout.gg/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">Maplesprout</a>
+                    <a href="https://dailyneso.com/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">NESO Tracker</a>
+                    <a href="https://maplemaps.net/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">Maple Interactive Map</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="flex-1 flex flex-col items-center p-4 sm:p-8">
+        <div class="w-full max-w-xl bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-700 relative overflow-hidden">
+            
+            <!-- Background Glow Effect -->
+            <div class="absolute -top-32 -left-32 w-64 h-64 blur-3xl rounded-full opacity-10 bg-indigo-500 pointer-events-none"></div>
+
+            <h1 class="text-3xl font-bold text-indigo-400 flex items-center gap-3 mb-2 relative z-10">
+                <i data-lucide="shield-alert" class="w-8 h-8"></i>
+                Boss Defense Calculator
+            </h1>
+            <p class="text-slate-400 text-sm mb-8 relative z-10">Calculate the actual damage percentage dealt to a boss based on your total IED and the boss's PDR.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 relative z-10">
+                <!-- Boss PDR Input -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-300 mb-2">Boss PDR / Defense (%)</label>
+                    <div class="relative">
+                        <input type="number" id="boss-pdr" placeholder="e.g., 300" step="1" min="0" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white font-mono text-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all pr-10">
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">%</span>
+                    </div>
+                </div>
+
+                <!-- Current IED Input -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-300 mb-2">Current Total IED (%)</label>
+                    <div class="relative">
+                        <input type="number" id="current-ied" placeholder="e.g., 85.50" step="0.01" min="0" max="100" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white font-mono text-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all pr-10">
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Check Boss PDR Link -->
+            <a href="https://maplen.gg/boss" target="_blank" rel="noopener noreferrer" class="w-full py-3 mb-6 border border-slate-600 text-slate-400 hover:text-indigo-300 hover:border-indigo-500/50 hover:bg-indigo-500/10 rounded-xl flex items-center justify-center gap-2 transition-all relative z-10 font-medium">
+                <i data-lucide="external-link" class="w-5 h-5"></i>
+                Check Boss PDR List (MapleN.gg)
+            </a>
+
+            <!-- Calculate Button -->
+            <button id="calculate-btn" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-lg rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/50 transition-all active:scale-[0.98] relative z-10">
+                <i data-lucide="swords" class="w-6 h-6"></i>
+                CALCULATE DAMAGE
+            </button>
+
+            <!-- Calculation Results -->
+            <div class="mt-6 bg-slate-900/80 rounded-2xl p-6 border border-slate-700 text-center relative z-10 shadow-inner">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 md:divide-x divide-slate-700">
+                    
+                    <!-- Remaining Defense -->
+                    <div class="flex flex-col items-center justify-center p-2">
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1 flex items-center gap-1">
+                            <i data-lucide="shield" class="w-3 h-3"></i> Remaining Def
+                        </p>
+                        <div id="remaining-def-display" class="font-mono text-2xl font-bold text-amber-400 tracking-tight drop-shadow-md">
+                            0.00%
+                        </div>
+                    </div>
+
+                    <!-- Damage Reduction -->
+                    <div class="flex flex-col items-center justify-center p-2 border-t md:border-t-0 border-slate-700">
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1 flex items-center gap-1">
+                            <i data-lucide="trending-down" class="w-3 h-3"></i> Dmg Reduction
+                        </p>
+                        <div id="dmg-reduction-display" class="font-mono text-2xl font-bold text-red-400 tracking-tight drop-shadow-md">
+                            0.00%
+                        </div>
+                    </div>
+
+                    <!-- Damage Dealt -->
+                    <div class="flex flex-col items-center justify-center p-2 border-t md:border-t-0 border-slate-700">
+                        <p class="text-[10px] text-emerald-400 uppercase tracking-widest font-bold mb-1 flex items-center gap-1">
+                            <i data-lucide="target" class="w-3 h-3"></i> Damage Dealt
+                        </p>
+                        <div id="dmg-dealt-display" class="font-mono text-3xl font-bold text-emerald-400 tracking-tight drop-shadow-md">
+                            0.00%
+                        </div>
+                    </div>
+
+                </div>
+                
+                <p class="text-[10px] text-slate-500 mt-5 italic">Damage Dealt = 100% - Remaining Def. (Damage Dealt cannot be less than 0%).</p>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Initialize icons
+        lucide.createIcons();
+
+        const calcBtn = document.getElementById('calculate-btn');
+        const currentIedInput = document.getElementById('current-ied');
+        const bossPdrInput = document.getElementById('boss-pdr');
+        
+        const remainingDefDisplay = document.getElementById('remaining-def-display');
+        const dmgReductionDisplay = document.getElementById('dmg-reduction-display');
+        const dmgDealtDisplay = document.getElementById('dmg-dealt-display');
+
+        // Math Logic for Boss Damage Penetration
+        function calculateDamage() {
+            // Get Boss PDR
+            let bossPdr = parseFloat(bossPdrInput.value);
+            if (isNaN(bossPdr) || bossPdr < 0) bossPdr = 0;
+
+            // Get Base IED
+            let currentIed = parseFloat(currentIedInput.value);
+            if (isNaN(currentIed) || currentIed < 0) {
+                currentIed = 0;
+            } else if (currentIed > 100) {
+                currentIed = 100;
+            }
+
+            // Convert to defense multiplier (e.g., 80% IED means 20% or 0.2 of boss def remains)
+            let defenseMultiplier = 1 - (currentIed / 100);
+
+            // 1. Calculate effective Boss Defense against player (Remaining Defense)
+            let effectiveBossDef = bossPdr * defenseMultiplier;
+            
+            // 2. Calculate Damage Reduction (Capped at 100% because you can't reduce more than 100% of damage)
+            let damageReduction = effectiveBossDef > 100 ? 100 : effectiveBossDef;
+            
+            // 3. Calculate actual damage dealt (100% - Effective Boss Defense)
+            let damageDealt = 100 - effectiveBossDef;
+            if (damageDealt < 0) damageDealt = 0; // Cap at 0% (in-game you deal 1s)
+
+            // Display results with 2 decimal places
+            remainingDefDisplay.innerText = effectiveBossDef.toFixed(2) + '%';
+            dmgReductionDisplay.innerText = damageReduction.toFixed(2) + '%';
+            dmgDealtDisplay.innerText = damageDealt.toFixed(2) + '%';
+            
+            // Change color to red if damage dealt is 0% (blocked), else green
+            if (damageDealt === 0) {
+                dmgDealtDisplay.classList.remove('text-emerald-400');
+                dmgDealtDisplay.classList.add('text-red-500');
+            } else {
+                dmgDealtDisplay.classList.remove('text-red-500');
+                dmgDealtDisplay.classList.add('text-emerald-400');
+            }
+
+            // Visual feedback animation
+            const displays = [remainingDefDisplay, dmgReductionDisplay, dmgDealtDisplay];
+            displays.forEach(el => {
+                el.classList.add('scale-110', 'text-white');
+                setTimeout(() => {
+                    el.classList.remove('scale-110', 'text-white');
+                }, 300);
+            });
+        }
+
+        // Event Listeners
+        calcBtn.addEventListener('click', calculateDamage);
+
+        // Allow 'Enter' key to trigger calculation
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                calculateDamage();
+            }
+        });
+
+    </script>
+</body>
+</html>
