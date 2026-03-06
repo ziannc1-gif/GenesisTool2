@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neso Cycle Timer Ultra & Skill Tracker</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        @keyframes swing {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+        .animate-swing {
+            animation: swing 1s infinite ease-in-out;
+        }
+        @keyframes flash-red {
+            0%, 100% { background-color: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); box-shadow: 0 0 15px rgba(239, 68, 68, 0.5); }
+            50% { background-color: rgba(239, 68, 68, 0.5); border-color: rgba(239, 68, 68, 1); box-shadow: 0 0 30px rgba(239, 68, 68, 0.8); }
+        }
+        .animate-flash {
+            animation: flash-red 0.5s ease-in-out 3;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            opacity: 1;
+        }
+        .custom-file-upload {
+            border: 1px solid #334155;
+            display: inline-block;
+            padding: 4px 8px;
+            cursor: pointer;
+            border-radius: 8px;
+            background: #1e293b;
+            font-size: 10px;
+        }
+        .custom-file-upload:hover {
+            background: #334155;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-white flex flex-col">
+
+    <!-- Navbar Global -->
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center h-16 overflow-x-auto hide-scrollbar">
+                <div class="flex items-center space-x-2 sm:space-x-4 min-w-max">
+                    <a href="#" class="bg-blue-500/20 text-blue-400 border border-blue-500/30 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-inner">Neso & Skill Timer</a>
+                    <a href="ied-calculator.html" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">Boss Defense Calculator</a>
+                    <a href="https://maplen.gg/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">MapleN.gg</a>
+                    <a href="https://maplesprout.gg/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">Maplesprout</a>
+                    <a href="https://dailyneso.com/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">NESO Tracker</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notifikasi Global -->
+    <div id="notification" class="hidden fixed top-24 left-1/2 -translate-x-1/2 bg-yellow-500 text-slate-900 px-8 py-4 rounded-2xl shadow-2xl font-bold text-xl animate-bounce z-50 flex items-center gap-3">
+        <i data-lucide="bell" class="animate-swing"></i>
+        <span id="notif-text">WAKTUNYA RECHARGE!</span>
+    </div>
+    <div id="skill-notification" class="hidden fixed top-40 left-1/2 -translate-x-1/2 bg-red-600 text-white px-8 py-4 rounded-2xl shadow-2xl font-bold text-xl z-50 flex items-center gap-3 border-2 border-red-400">
+        <i data-lucide="zap" class="animate-pulse"></i>
+        <span id="skill-notif-text">Gunakan Skill Sekarang!</span>
+    </div>
+
+    <main class="flex-1 flex flex-col items-center p-4 sm:p-8 relative">
+        <div class="w-full max-w-lg mx-auto">
+            
+            <div class="w-full bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-xl border border-slate-700 relative overflow-hidden">
+                <div id="glow" class="absolute -top-24 -right-24 w-48 h-48 blur-3xl rounded-full opacity-20 bg-blue-500 transition-colors duration-1000"></div>
+                
+                <!-- Header Neso -->
+                <div class="flex justify-between items-center mb-6 relative z-10">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="clock" class="text-blue-400 w-5 h-5"></i>
+                        <span id="current-clock" class="text-slate-400 font-mono text-lg">00:00:00</span>
+                    </div>
+                    <button id="mute-btn" class="p-2 hover:bg-slate-700 rounded-full transition-colors" title="Mute Neso Alarm">
+                        <i id="mute-icon" data-lucide="bell" class="text-yellow-400 w-6 h-6"></i>
+                    </button>
+                </div>
+
+                <!-- Timer Neso -->
+                <div class="text-center mb-6 relative z-10">
+                    <h1 class="text-slate-400 text-xs font-bold tracking-widest uppercase mb-1">Neso Cycle Timer</h1>
+                    <div id="timer-display" class="text-7xl font-mono font-bold text-white tracking-tighter">20:00</div>
+                    <div id="status-badge" class="hidden mt-4 inline-flex items-center gap-2 px-4 py-1 rounded-full text-sm font-bold transition-all">
+                        <span id="status-icon"></span>
+                        <span id="status-text"></span>
+                    </div>
+                </div>
+
+                <!-- Progress Bar Neso -->
+                <div class="w-full h-2 bg-slate-700 rounded-full mb-6 overflow-hidden relative z-10">
+                    <div id="progress-bar" class="h-full bg-blue-500 w-0 transition-all duration-1000 ease-linear"></div>
+                </div>
+
+                <!-- Neso Settings -->
+                <div class="grid grid-cols-2 gap-3 mb-4 bg-slate-900/40 p-4 rounded-2xl border border-slate-700/50 relative z-10">
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase italic">Durasi Grind</label>
+                        <input type="number" id="grind-input" value="10" min="1" max="19" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1 text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-[10px] font-bold text-slate-500 uppercase italic">Alarm Jalan</label>
+                        <input type="number" id="offset-input" value="1" min="0" max="5" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-1 text-white font-mono focus:outline-none focus:border-blue-500">
+                    </div>
+                </div>
+
+                <!-- Audio Settings Neso -->
+                <div class="mb-6 relative z-10">
+                    <button onclick="document.getElementById('audio-panel').classList.toggle('hidden')" class="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1 mb-2 hover:text-slate-300">
+                        <i data-lucide="settings-2" class="w-3 h-3"></i> Atur Suara Alarm Neso
+                    </button>
+                    <div id="audio-panel" class="hidden space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-700/30">
+                        <div class="flex items-center justify-between text-[10px]">
+                            <span class="text-slate-400 italic">Alarm Jalan</span>
+                            <label class="custom-file-upload">
+                                <input type="file" id="audio-go" accept="audio/*" class="hidden"> Pilih File
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px]">
+                            <span class="text-slate-400 italic">Recharge</span>
+                            <label class="custom-file-upload">
+                                <input type="file" id="audio-recharge" accept="audio/*" class="hidden"> Pilih File
+                            </label>
+                        </div>
+                        <div class="flex items-center justify-between text-[10px]">
+                            <span class="text-slate-400 italic">Break Time</span>
+                            <label class="custom-file-upload">
+                                <input type="file" id="audio-break" accept="audio/*" class="hidden"> Pilih File
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Start Neso -->
+                <div class="grid grid-cols-1 gap-4 mb-6 relative z-10">
+                    <button id="start-btn" class="w-full py-4 rounded-2xl bg-blue-600 text-white font-bold text-xl flex items-center justify-center gap-3 transition-all hover:bg-blue-500 active:scale-95 shadow-lg shadow-blue-900/40">
+                        <i data-lucide="play" id="btn-icon"></i>
+                        <span id="btn-text">START SYNC</span>
+                    </button>
+                </div>
+
+                <!-- Farming Duration -->
+                <div id="farming-duration-container" class="flex bg-slate-900/50 rounded-2xl p-4 border border-slate-700/50 relative z-10 flex-col items-center justify-center shadow-inner mb-6">
+                    <div class="flex items-center justify-between w-full mb-2 px-2">
+                        <div class="flex items-center gap-2 text-slate-400 text-[10px] font-bold uppercase">
+                            <i data-lucide="activity" class="w-3 h-3 text-blue-400"></i> Farming Duration
+                        </div>
+                        <button id="pause-farming-btn" class="hidden bg-slate-800 hover:bg-slate-700 border border-slate-600 rounded-lg p-1.5 text-slate-400 hover:text-blue-400 transition-all shadow-sm" title="Pause Farming Timer">
+                            <i id="pause-farming-icon" data-lucide="pause" class="w-3 h-3"></i>
+                        </button>
+                    </div>
+                    <div id="farming-duration" class="font-mono text-3xl font-bold text-blue-400 tracking-widest drop-shadow-md transition-all duration-300">
+                        00:00:00
+                    </div>
+                </div>
+                
+                <!-- Divider -->
+                <div class="border-t border-slate-700 my-6 relative z-10"></div>
+
+                <!-- ========================================== -->
+                <!-- SKILL AUTO-REMINDER                        -->
+                <!-- ========================================== -->
+                <div class="relative z-10">
+                    <header class="flex justify-between items-center mb-4">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="swords" class="w-5 h-5 text-amber-400"></i>
+                            <h2 class="text-sm font-bold text-amber-400 uppercase tracking-widest">Skill Reminder</h2>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button id="skill-mute-btn" class="text-amber-400 hover:text-amber-300 transition-colors p-1" title="Mute Alarm Skill">
+                                <i data-lucide="volume-2" id="skill-mute-icon" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="stopAllSkills()" class="text-red-400 hover:text-red-300 transition-colors p-1" title="Stop Semua Skill">
+                                <i data-lucide="square-x" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </header>
+
+                    <!-- Audio Settings Skill -->
+                    <div class="mb-4 relative z-10">
+                        <button onclick="document.getElementById('skill-audio-panel').classList.toggle('hidden')" class="text-[10px] text-slate-500 font-bold uppercase flex items-center gap-1 mb-2 hover:text-slate-300">
+                            <i data-lucide="settings-2" class="w-3 h-3"></i> Atur Suara Alarm Skill
+                        </button>
+                        <div id="skill-audio-panel" class="hidden space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-700/30">
+                            <div class="flex items-center justify-between text-[10px]">
+                                <span class="text-slate-400 italic">Nada Notifikasi Skill</span>
+                                <label class="custom-file-upload">
+                                    <input type="file" id="audio-skill" accept="audio/*" class="hidden"> Pilih File
+                                </label>
+                            </div>
+                            <p id="skill-audio-name" class="text-[8px] text-amber-500/70 italic text-right truncate max-w-full">Default Beep</p>
+                        </div>
+                    </div>
+
+                    <!-- Form Tambah Skill -->
+                    <form id="add-skill-form" class="mb-4 flex gap-2">
+                        <input type="text" id="skill-name" placeholder="Nama (e.g. Veil)" required class="flex-1 min-w-0 bg-slate-900 border border-slate-600 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-500 text-xs sm:text-sm">
+                        <div class="relative w-20 sm:w-24">
+                            <input type="number" id="skill-cooldown" placeholder="Detik" required min="1" step="1" class="w-full bg-slate-900 border border-slate-600 rounded-lg px-2 py-2 text-white focus:outline-none focus:border-amber-500 font-mono text-xs sm:text-sm text-center">
+                        </div>
+                        <button type="submit" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-2 rounded-lg font-bold transition-colors text-xs sm:text-sm">
+                            <i data-lucide="plus" class="w-4 h-4"></i>
+                        </button>
+                    </form>
+
+                    <!-- Daftar Skill -->
+                    <div id="skills-grid" class="space-y-2 mb-4">
+                        <!-- Skill Rows inserted via JS -->
+                    </div>
+                    <div id="empty-state" class="hidden py-6 text-center text-slate-500 border border-dashed border-slate-700 rounded-xl mt-2 mb-4">
+                        <p class="text-[10px] font-bold">Belum ada skill yang dilacak.</p>
+                    </div>
+                </div>
+
+                <p class="mt-6 text-slate-500 text-[10px] text-center w-full leading-relaxed italic relative z-10">
+                    Sync Neso: :00, :20, :40
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // --- Shared Audio ---
+        let audioCtx = null;
+        lucide.createIcons();
+
+        // --- Neso Logic ---
+        let isNesoActive = false;
+        let isNesoMuted = false;
+        let farmingStartTime = 0;
+        let farmingAccumulatedMs = 0;
+        let isFarmingPaused = false;
+        let lastBeepedTime = 0;
+        
+        let grindMinutes = parseInt(localStorage.getItem('grindMinutes')) || 10;
+        let offsetMinutes = parseInt(localStorage.getItem('offsetMinutes')) || 1;
+        
+        const customAudios = {
+            go: localStorage.getItem('audio_go') || null,
+            recharge: localStorage.getItem('audio_recharge') || null,
+            break: localStorage.getItem('audio_break') || null,
+            skill: localStorage.getItem('audio_skill') || null
+        };
+
+        const skillAudioNameLabel = document.getElementById('skill-audio-name');
+        if(localStorage.getItem('audio_skill_name')) {
+            skillAudioNameLabel.innerText = localStorage.getItem('audio_skill_name');
+        }
+
+        const nesoTimerDisplay = document.getElementById('timer-display');
+        const currentClock = document.getElementById('current-clock');
+        const nesoStartBtn = document.getElementById('start-btn');
+        const nesoBtnText = document.getElementById('btn-text');
+        const nesoBtnIcon = document.getElementById('btn-icon');
+        const nesoMuteBtn = document.getElementById('mute-btn');
+        const nesoMuteIcon = document.getElementById('mute-icon');
+        const statusBadge = document.getElementById('status-badge');
+        const statusText = document.getElementById('status-text');
+        const statusIcon = document.getElementById('status-icon');
+        const progressBar = document.getElementById('progress-bar');
+        const glow = document.getElementById('glow');
+        const nesoNotification = document.getElementById('notification');
+        const nesoNotifText = document.getElementById('notif-text');
+        const farmingDurationDisplay = document.getElementById('farming-duration');
+        const pauseFarmingBtn = document.getElementById('pause-farming-btn');
+        const pauseFarmingIcon = document.getElementById('pause-farming-icon');
+
+        document.getElementById('grind-input').value = grindMinutes;
+        document.getElementById('offset-input').value = offsetMinutes;
+
+        document.getElementById('grind-input').addEventListener('change', (e) => {
+            grindMinutes = parseInt(e.target.value) || 10;
+            localStorage.setItem('grindMinutes', grindMinutes);
+        });
+        document.getElementById('offset-input').addEventListener('change', (e) => {
+            offsetMinutes = parseInt(e.target.value) || 0;
+            localStorage.setItem('offsetMinutes', offsetMinutes);
+        });
+
+        const setupAudioUpload = (id, key) => {
+            document.getElementById(id).addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const base64 = event.target.result;
+                        customAudios[key] = base64;
+                        try {
+                            localStorage.setItem('audio_' + key, base64);
+                            if(key === 'skill') {
+                                localStorage.setItem('audio_skill_name', file.name);
+                                skillAudioNameLabel.innerText = file.name;
+                            }
+                            alert('Suara ' + key + ' berhasil disimpan!');
+                        } catch (err) {
+                            alert('File terlalu besar! Coba file yang lebih kecil (di bawah 1MB).');
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        };
+
+        setupAudioUpload('audio-go', 'go');
+        setupAudioUpload('audio-recharge', 'recharge');
+        setupAudioUpload('audio-break', 'break');
+        setupAudioUpload('audio-skill', 'skill');
+
+        function calculateNextInterval() {
+            const now = new Date();
+            const minutes = now.getMinutes();
+            const seconds = now.getSeconds();
+            let targetMinutes;
+            if (minutes < 20) targetMinutes = 20;
+            else if (minutes < 40) targetMinutes = 40;
+            else targetMinutes = 60;
+            return (targetMinutes * 60) - (minutes * 60 + seconds);
+        }
+
+        function playNesoSound(type) {
+            if (isNesoMuted) return;
+            if (customAudios[type]) {
+                const audio = new Audio(customAudios[type]);
+                audio.play().catch(() => {});
+                return;
+            }
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const play = (freq, delay, duration) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+                gain.gain.setValueAtTime(0.1, audioCtx.currentTime + delay);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + delay + duration);
+                osc.start(audioCtx.currentTime + delay);
+                osc.stop(audioCtx.currentTime + delay + duration);
+            };
+            if (type === 'go') { play(1200, 0, 0.3); play(1200, 0.4, 0.3); }
+            else if (type === 'break') { play(600, 0, 0.5); play(400, 0.5, 0.5); }
+            else { play(880, 0, 0.5); play(880, 0.7, 0.5); play(880, 1.4, 0.5); }
+        }
+
+        function showNesoNotif(txt) {
+            nesoNotifText.innerText = txt;
+            nesoNotification.classList.remove('hidden');
+            setTimeout(() => nesoNotification.classList.add('hidden'), 5000);
+        }
+
+        function updateNesoUI() {
+            const now = new Date();
+            const epoch = Math.floor(now.getTime() / 1000);
+            currentClock.innerText = now.toLocaleTimeString('id-ID', { hour12: false });
+
+            if (isNesoActive) {
+                const remaining = calculateNextInterval();
+                const m = Math.floor(remaining / 60);
+                const s = remaining % 60;
+                
+                nesoTimerDisplay.innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+                const restSeconds = (20 - grindMinutes) * 60;
+                const isGrinding = remaining > restSeconds;
+                
+                statusBadge.classList.remove('hidden');
+                
+                if (isGrinding) {
+                    statusBadge.className = "mt-4 inline-flex items-center gap-2 px-4 py-1 rounded-full text-sm font-bold bg-red-500/20 text-red-400";
+                    statusText.innerText = "GRINDING";
+                    statusIcon.innerHTML = '<i data-lucide="sword" class="w-4 h-4"></i>';
+                    progressBar.className = "h-full bg-red-500 transition-all duration-1000";
+                    glow.className = "absolute -top-24 -right-24 w-48 h-48 blur-3xl rounded-full opacity-20 bg-red-500";
+                } else {
+                    statusBadge.className = "mt-4 inline-flex items-center gap-2 px-4 py-1 rounded-full text-sm font-bold bg-green-500/20 text-green-400";
+                    statusText.innerText = "ISTIRAHAT";
+                    statusIcon.innerHTML = '<i data-lucide="coffee" class="w-4 h-4"></i>';
+                    progressBar.className = "h-full bg-green-500 transition-all duration-1000";
+                    glow.className = "absolute -top-24 -right-24 w-48 h-48 blur-3xl rounded-full opacity-20 bg-green-500";
+                }
+                lucide.createIcons();
+                progressBar.style.width = `${(remaining / 1200) * 100}%`;
+
+                let totalMs = farmingAccumulatedMs;
+                if (!isFarmingPaused) {
+                    totalMs += (now.getTime() - farmingStartTime);
+                }
+                const eHrs = Math.floor(totalMs / (1000 * 60 * 60));
+                const eMins = Math.floor((totalMs / (1000 * 60)) % 60);
+                const eSecs = Math.floor((totalMs / 1000) % 60);
+                farmingDurationDisplay.innerText = `${String(eHrs).padStart(2, '0')}:${String(eMins).padStart(2, '0')}:${String(eSecs).padStart(2, '0')}`;
+
+                if (lastBeepedTime !== epoch) {
+                    if (remaining === 1200 || remaining === 0) {
+                        playNesoSound('recharge');
+                        showNesoNotif("WAKTUNYA RECHARGE!");
+                        lastBeepedTime = epoch;
+                    }
+                    else if (offsetMinutes > 0 && remaining === (offsetMinutes * 60)) {
+                        playNesoSound('go');
+                        showNesoNotif("WAKTUNYA JALAN KE LOKASI!");
+                        lastBeepedTime = epoch;
+                    }
+                    else if (remaining === restSeconds) {
+                        playNesoSound('break');
+                        showNesoNotif("GRINDING SELESAI, ISTIRAHAT!");
+                        lastBeepedTime = epoch;
+                    }
+                }
+            }
+        }
+
+        nesoStartBtn.addEventListener('click', () => {
+            isNesoActive = !isNesoActive;
+            if (isNesoActive) {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                nesoBtnText.innerText = "STOP";
+                nesoBtnIcon.setAttribute('data-lucide', 'square');
+                farmingStartTime = Date.now();
+                farmingAccumulatedMs = 0;
+                isFarmingPaused = false;
+                pauseFarmingBtn.classList.remove('hidden');
+                pauseFarmingIcon.setAttribute('data-lucide', 'pause');
+                farmingDurationDisplay.classList.replace('text-yellow-400', 'text-blue-400');
+            } else {
+                nesoBtnText.innerText = "START SYNC";
+                nesoBtnIcon.setAttribute('data-lucide', 'play');
+                nesoTimerDisplay.innerText = "20:00";
+                statusBadge.classList.add('hidden');
+                progressBar.style.width = "0%";
+                farmingStartTime = 0; 
+                farmingAccumulatedMs = 0;
+                isFarmingPaused = false;
+                pauseFarmingBtn.classList.add('hidden');
+                farmingDurationDisplay.innerText = "00:00:00";
+            }
+            lucide.createIcons();
+        });
+
+        pauseFarmingBtn.addEventListener('click', () => {
+            if (!isNesoActive) return;
+            if (isFarmingPaused) {
+                farmingStartTime = Date.now();
+                isFarmingPaused = false;
+                pauseFarmingIcon.setAttribute('data-lucide', 'pause');
+                farmingDurationDisplay.classList.replace('text-yellow-400', 'text-blue-400');
+            } else {
+                farmingAccumulatedMs += (Date.now() - farmingStartTime);
+                isFarmingPaused = true;
+                pauseFarmingIcon.setAttribute('data-lucide', 'play');
+                farmingDurationDisplay.classList.replace('text-blue-400', 'text-yellow-400');
+            }
+            lucide.createIcons();
+        });
+
+        nesoMuteBtn.addEventListener('click', () => {
+            isNesoMuted = !isNesoMuted;
+            nesoMuteIcon.setAttribute('data-lucide', isNesoMuted ? 'bell-off' : 'bell');
+            nesoMuteIcon.className = isNesoMuted ? 'text-slate-500 w-6 h-6' : 'text-yellow-400 w-6 h-6';
+            lucide.createIcons();
+        });
+
+        // --- Skill Reminder Logic ---
+        let isSkillMuted = false;
+        let skills = JSON.parse(localStorage.getItem('mapleSkills')) || [];
+        const skillMuteBtn = document.getElementById('skill-mute-btn');
+        const skillMuteIcon = document.getElementById('skill-mute-icon');
+        const skillNotification = document.getElementById('skill-notification');
+        const skillNotifText = document.getElementById('skill-notif-text');
+        const skillsGrid = document.getElementById('skills-grid');
+        const emptyState = document.getElementById('empty-state');
+        const addSkillForm = document.getElementById('add-skill-form');
+
+        skillMuteBtn.addEventListener('click', () => {
+            isSkillMuted = !isSkillMuted;
+            skillMuteIcon.setAttribute('data-lucide', isSkillMuted ? 'volume-x' : 'volume-2');
+            skillMuteBtn.className = isSkillMuted ? 'text-slate-500 p-1' : 'text-amber-400 p-1';
+            lucide.createIcons();
+        });
+
+        function playSkillAlarm() {
+            if (isSkillMuted) return;
+            if (customAudios['skill']) {
+                const audio = new Audio(customAudios['skill']);
+                audio.play().catch(() => {});
+                return;
+            }
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const playTone = (freq, delay, duration) => {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.type = 'square';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + delay);
+                gain.gain.setValueAtTime(0.05, audioCtx.currentTime + delay);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + delay + duration);
+                osc.start(audioCtx.currentTime + delay);
+                osc.stop(audioCtx.currentTime + delay + duration);
+            };
+            playTone(900, 0, 0.1); playTone(900, 0.15, 0.1); playTone(1200, 0.3, 0.3);
+        }
+
+        function showSkillFlashNotif(skillName) {
+            skillNotifText.innerText = `Gunakan ${skillName}!`;
+            skillNotification.classList.remove('hidden');
+            skillNotification.classList.add('animate-bounce');
+            setTimeout(() => {
+                skillNotification.classList.add('hidden');
+                skillNotification.classList.remove('animate-bounce');
+            }, 3000);
+        }
+
+        function saveSkills() { localStorage.setItem('mapleSkills', JSON.stringify(skills)); }
+
+        addSkillForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nameInput = document.getElementById('skill-name').value.trim();
+            const cdInput = parseInt(document.getElementById('skill-cooldown').value);
+            if (!nameInput || isNaN(cdInput) || cdInput <= 0) return;
+            skills.push({ id: 'skill_' + Date.now(), name: nameInput, cooldownSec: cdInput, remainingSec: cdInput, isActive: false, lastTick: 0 });
+            saveSkills();
+            document.getElementById('skill-name').value = '';
+            document.getElementById('skill-cooldown').value = '';
+            renderSkills();
+        });
+
+        function deleteSkill(id) { skills = skills.filter(s => s.id !== id); saveSkills(); renderSkills(); }
+
+        function toggleSkill(id) {
+            const skill = skills.find(s => s.id === id);
+            if (!skill) return;
+            if (skill.isActive) { skill.isActive = false; } else {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                skill.isActive = true; skill.lastTick = Date.now();
+                if (skill.remainingSec <= 0) skill.remainingSec = skill.cooldownSec;
+            }
+            saveSkills(); renderSkills();
+        }
+
+        function resetSkill(id) {
+            const skill = skills.find(s => s.id === id);
+            if (skill) { skill.remainingSec = skill.cooldownSec; skill.lastTick = Date.now(); saveSkills(); renderSkills(); }
+        }
+
+        function stopAllSkills() { skills.forEach(s => s.isActive = false); saveSkills(); renderSkills(); }
+
+        function formatSkillTime(totalSeconds) {
+            if (totalSeconds <= 0) return "00:00";
+            const m = Math.floor(totalSeconds / 60); const s = Math.floor(totalSeconds % 60);
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function renderSkills() {
+            skillsGrid.innerHTML = '';
+            if (skills.length === 0) { emptyState.classList.remove('hidden'); } else { emptyState.classList.add('hidden'); }
+            skills.forEach(skill => {
+                const card = document.createElement('div');
+                card.id = `card-${skill.id}`;
+                const progressPct = Math.max(0, Math.min(100, (skill.remainingSec / skill.cooldownSec) * 100));
+                let cardClass = "relative overflow-hidden rounded-xl border p-3 transition-all duration-300 flex items-center shadow-sm ";
+                let timeClass = "font-mono text-xl font-bold tracking-tight ";
+                let progressClass = "transition-all duration-100 linear opacity-20 ";
+                if (skill.isActive) {
+                    if (skill.remainingSec <= 5) { cardClass += "bg-red-900/40 border-red-500/50"; timeClass += "text-red-400"; progressClass += "bg-red-500"; } 
+                    else { cardClass += "bg-slate-800 border-amber-500/50"; timeClass += "text-amber-400"; progressClass += "bg-amber-500"; }
+                } else { cardClass += "bg-slate-900/50 border-slate-700"; timeClass += "text-slate-500"; progressClass += "bg-slate-600"; }
+                card.className = cardClass;
+                card.innerHTML = `
+                    <div id="prog-${skill.id}" class="absolute inset-y-0 left-0 ${progressClass}" style="width: ${progressPct}%"></div>
+                    <div class="relative z-10 flex items-center justify-between w-full">
+                        <div class="flex items-center gap-2 w-1/3 min-w-[80px]">
+                            <i data-lucide="${skill.isActive ? 'zap' : 'zap-off'}" class="w-4 h-4 ${skill.isActive ? 'text-amber-400 fill-current' : 'text-slate-600'} shrink-0"></i>
+                            <h3 class="text-sm font-bold ${skill.isActive ? 'text-slate-100' : 'text-slate-400'} truncate" title="${skill.name}">${skill.name}</h3>
+                        </div>
+                        <div class="flex-1 text-center px-2">
+                            <div id="time-${skill.id}" class="${timeClass}">${formatSkillTime(skill.remainingSec)}</div>
+                        </div>
+                        <div class="flex items-center gap-1 justify-end w-1/3 min-w-[100px]">
+                            <button onclick="toggleSkill('${skill.id}')" class="p-2 rounded-lg ${skill.isActive ? 'bg-slate-700 hover:bg-slate-600 text-slate-200' : 'bg-amber-600 hover:bg-amber-500 text-white'} transition-colors">
+                                <i data-lucide="${skill.isActive ? 'pause' : 'play'}" class="w-4 h-4 ${skill.isActive ? '' : 'fill-current'}"></i>
+                            </button>
+                            <button onclick="resetSkill('${skill.id}')" class="p-2 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 transition-colors">
+                                <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteSkill('${skill.id}')" class="p-2 rounded-lg bg-red-900/30 hover:bg-red-500/20 text-red-400 transition-colors">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                skillsGrid.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // Master Loop
+        setInterval(updateNesoUI, 1000);
+        setInterval(() => {
+            let needsRender = false; const now = Date.now();
+            skills.forEach(skill => {
+                if (skill.isActive) {
+                    const elapsedMs = now - skill.lastTick;
+                    const elapsedSec = elapsedMs / 1000;
+                    skill.remainingSec -= elapsedSec; skill.lastTick = now;
+                    const timeEl = document.getElementById(`time-${skill.id}`);
+                    const progEl = document.getElementById(`prog-${skill.id}`);
+                    const cardEl = document.getElementById(`card-${skill.id}`);
+                    if (timeEl && progEl) {
+                        timeEl.innerText = formatSkillTime(skill.remainingSec);
+                        const progressPct = Math.max(0, Math.min(100, (skill.remainingSec / skill.cooldownSec) * 100));
+                        progEl.style.width = `${progressPct}%`;
+                        if (skill.remainingSec <= 5 && skill.remainingSec > 0) {
+                            if (!timeEl.classList.contains('text-red-400')) {
+                                timeEl.classList.replace('text-amber-400', 'text-red-400');
+                                progEl.classList.replace('bg-amber-500', 'bg-red-500');
+                                cardEl.classList.replace('bg-slate-800', 'bg-red-900/40');
+                            }
+                        }
+                    }
+                    if (skill.remainingSec <= 0) {
+                        playSkillAlarm(); showSkillFlashNotif(skill.name);
+                        if (cardEl) { cardEl.classList.add('animate-flash'); setTimeout(() => cardEl.classList.remove('animate-flash'), 1500); }
+                        skill.remainingSec = skill.cooldownSec + skill.remainingSec; needsRender = true;
+                    }
+                }
+            });
+            if (needsRender) { saveSkills(); renderSkills(); }
+        }, 100);
+
+        updateNesoUI();
+        renderSkills();
+    </script>
+</body>
+</html>

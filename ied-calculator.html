@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MapleStory Boss Defense Calculator</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+        .font-mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Sembunyikan panah input angka */
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        /* Sembunyikan scrollbar navbar mobile */
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Styling dropdown */
+        select optgroup {
+            background: #1e293b;
+            color: #94a3b8;
+            font-weight: bold;
+        }
+        select option {
+            background: #0f172a;
+            color: #f1f5f9;
+            font-weight: normal;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-100 flex flex-col">
+
+    <!-- Navbar Global -->
+    <nav class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center h-16 overflow-x-auto hide-scrollbar">
+                <div class="flex items-center space-x-2 sm:space-x-4 min-w-max">
+                    <a href="index.html" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">Neso Cycle Timer</a>
+                    
+                    <!-- Halaman Aktif -->
+                    <a href="#" class="bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 px-4 py-2 rounded-lg text-sm font-bold transition-all shadow-inner">Boss Defense Calculator</a>
+                    
+                    <a href="https://maplen.gg/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">MapleN.gg</a>
+                    <a href="https://maplesprout.gg/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">Maplesprout</a>
+                    <a href="https://dailyneso.com/" target="_blank" rel="noopener noreferrer" class="text-slate-400 hover:text-slate-200 hover:bg-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-all">NESO Tracker</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Kontainer Utama -->
+    <main class="flex-1 flex flex-col items-center p-4 sm:p-8">
+        <div class="w-full max-w-xl bg-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-700 relative overflow-hidden">
+            
+            <!-- Efek Cahaya Latar -->
+            <div class="absolute -top-32 -left-32 w-64 h-64 blur-3xl rounded-full opacity-10 bg-indigo-500 pointer-events-none"></div>
+
+            <h1 class="text-3xl font-bold text-indigo-400 flex items-center gap-3 mb-2 relative z-10">
+                <i data-lucide="shield-alert" class="w-8 h-8"></i>
+                Boss Defense Calculator
+            </h1>
+            <p class="text-slate-400 text-sm mb-8 relative z-10">Pilih bos target dan masukkan IED kamu untuk menghitung damage asli yang masuk.</p>
+
+            <div class="grid grid-cols-1 gap-4 mb-4 relative z-10">
+                <!-- Dropdown Pilihan Bos -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-300 mb-2">Target Bos</label>
+                    <div class="relative">
+                        <select id="boss-pdr" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white font-mono text-sm sm:text-base focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all appearance-none cursor-pointer">
+                            <option value="0" selected>None / Boss Umum</option>
+                            <optgroup label="Daily Bosses">
+                                <option value="40">Zakum (Normal) (40% Def)</option>
+                                <option value="50">Hilla (Normal) (50% Def)</option>
+                                <option value="50">Magnus (Easy/Normal) (50% Def)</option>
+                                <option value="60">Horntail (Normal/Chaos) (60% Def)</option>
+                                <option value="60">Papulatus (Normal) (60% Def)</option>
+                                <option value="100">Pink Bean (Normal) (100% Def)</option>
+                                <option value="100">Arkarium (Normal) (100% Def)</option>
+                                <option value="100">Von Leon (Hard) (100% Def)</option>
+                            </optgroup>
+                            <optgroup label="Weekly Bosses (Low-Mid)">
+                                <option value="100">Zakum (Chaos) (100% Def)</option>
+                                <option value="100">Pink Bean (Chaos) (100% Def)</option>
+                                <option value="100">Cygnus (Normal) (100% Def)</option>
+                                <option value="100">Hilla (Hard) (100% Def)</option>
+                                <option value="100">Von Bon (Chaos) (100% Def)</option>
+                                <option value="100">Pierre (Chaos) (100% Def)</option>
+                                <option value="120">Crimson Queen (Chaos) (120% Def)</option>
+                                <option value="120">Magnus (Hard) (120% Def)</option>
+                                <option value="200">Vellum (Chaos) (200% Def)</option>
+                                <option value="250">Papulatus (Chaos) (250% Def)</option>
+                                <option value="250">Princess No (250% Def)</option>
+                                <option value="250">Akechi Mitsuhide (250% Def)</option>
+                            </optgroup>
+                            <optgroup label="Weekly Bosses (Endgame)">
+                                <option value="300">Lotus (Normal/Hard) (300% Def)</option>
+                                <option value="300">Damien (Normal/Hard) (300% Def)</option>
+                                <option value="300">Lucid (N/H) (300% Def)</option>
+                                <option value="300">Will (N/H) (300% Def)</option>
+                                <option value="300">Gloom (N/C) (300% Def)</option>
+                                <option value="300">Darknell (N/H) (300% Def)</option>
+                                <option value="300">Verus Hilla (300% Def)</option>
+                                <option value="300">Black Mage (300% Def)</option>
+                                <option value="380">Chosen Seren (380% Def)</option>
+                                <option value="380">Kalos the Guardian (380% Def)</option>
+                                <option value="380">Kaling (380% Def)</option>
+                            </optgroup>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none text-slate-400">
+                            <i data-lucide="chevron-down" class="w-5 h-5"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input IED Saat Ini -->
+                <div>
+                    <label class="block text-sm font-bold text-slate-300 mb-2">Current Total IED (Stat UI) (%)</label>
+                    <div class="relative">
+                        <input type="number" id="current-ied" placeholder="Cth: 85.50" step="0.01" min="0" max="100" class="w-full bg-slate-900 border border-slate-600 rounded-xl px-4 py-3 text-white font-mono text-lg focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all pr-10">
+                        <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Area Input Dinamis (Extra IED) -->
+            <div id="additional-ieds-container" class="space-y-3 mb-4 relative z-10">
+                <!-- Baris input tambahan muncul di sini via JS -->
+            </div>
+
+            <!-- Tombol Tambah IED -->
+            <button id="add-ied-btn" class="w-full py-3 mb-6 border-2 border-dashed border-slate-600 text-slate-400 hover:text-indigo-300 hover:border-indigo-500/50 hover:bg-indigo-500/10 rounded-xl flex items-center justify-center gap-2 transition-all relative z-10 font-medium">
+                <i data-lucide="plus" class="w-5 h-5"></i>
+                Tambah Extra IED (Wep Line, Skill, Familiar)
+            </button>
+
+            <!-- Tombol Hitung -->
+            <button id="calculate-btn" class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-lg rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-indigo-900/50 transition-all active:scale-[0.98] relative z-10 mt-2">
+                <i data-lucide="swords" class="w-6 h-6"></i>
+                CALCULATE DAMAGE
+            </button>
+
+            <!-- Hasil Perhitungan -->
+            <div class="mt-6 bg-slate-900/80 rounded-2xl p-6 border border-slate-700 text-center relative z-10 shadow-inner flex flex-col items-center">
+                
+                <!-- Badge Total Effective IED -->
+                <div class="flex justify-center mb-5 w-full">
+                    <div class="bg-slate-800/80 border border-slate-600 rounded-xl px-4 py-3 flex items-center justify-center gap-3 w-full shadow-md">
+                        <i data-lucide="calculator" class="w-5 h-5 text-indigo-400"></i>
+                        <span class="text-xs sm:text-sm text-slate-300 font-bold uppercase tracking-wider">Total Effective IED:</span>
+                        <span id="total-effective-ied-display" class="font-mono text-xl sm:text-2xl font-bold text-indigo-400 tracking-tight transition-colors duration-300">0.00%</span>
+                    </div>
+                </div>
+
+                <!-- Damage Dealt (Utama) -->
+                <div class="flex flex-col items-center justify-center p-4 w-full border-t border-b border-slate-700 mb-5 py-6">
+                    <p class="text-xs text-emerald-400 uppercase tracking-widest font-bold mb-2 flex items-center gap-1">
+                        <i data-lucide="target" class="w-4 h-4"></i> Actual Damage Dealt
+                    </p>
+                    <div id="dmg-dealt-display" class="font-mono text-5xl md:text-6xl font-bold text-slate-500 tracking-tight drop-shadow-md mb-3 transition-colors duration-300">
+                        0.00%
+                    </div>
+                    <div id="dmg-tier-display" class="text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full bg-slate-800 border border-slate-600 text-slate-400 transition-all duration-300">
+                        Pilih Target Bos
+                    </div>
+                </div>
+
+                <!-- Statistik Tambahan (Bawah) -->
+                <div class="grid grid-cols-2 gap-4 w-full divide-x divide-slate-700">
+                    <div class="flex flex-col items-center justify-center p-2">
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1 flex items-center gap-1">
+                            <i data-lucide="shield" class="w-3 h-3"></i> Remaining Def
+                        </p>
+                        <div id="remaining-def-display" class="font-mono text-xl font-bold text-amber-400 tracking-tight drop-shadow-md transition-colors duration-300">
+                            0.00%
+                        </div>
+                    </div>
+                    <div class="flex flex-col items-center justify-center p-2">
+                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold mb-1 flex items-center gap-1">
+                            <i data-lucide="trending-down" class="w-3 h-3"></i> Dmg Reduction
+                        </p>
+                        <div id="dmg-reduction-display" class="font-mono text-xl font-bold text-red-400 tracking-tight drop-shadow-md transition-colors duration-300">
+                            0.00%
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-[10px] text-slate-500 mt-5 italic">Damage Dealt = 100% - Remaining Def. (Tidak bisa kurang dari 0%).</p>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        const calcBtn = document.getElementById('calculate-btn');
+        const currentIedInput = document.getElementById('current-ied');
+        const bossPdrSelect = document.getElementById('boss-pdr');
+        const container = document.getElementById('additional-ieds-container');
+        const addBtn = document.getElementById('add-ied-btn');
+        
+        const remainingDefDisplay = document.getElementById('remaining-def-display');
+        const dmgReductionDisplay = document.getElementById('dmg-reduction-display');
+        const dmgDealtDisplay = document.getElementById('dmg-dealt-display');
+        const dmgTierDisplay = document.getElementById('dmg-tier-display');
+        const totalEffectiveIedDisplay = document.getElementById('total-effective-ied-display');
+
+        let inputCount = 0;
+
+        // Fungsi menambah baris input IED baru
+        function addIedInput() {
+            inputCount++;
+            const id = `add-ied-${inputCount}`;
+            const div = document.createElement('div');
+            div.className = "flex items-center gap-2 animate-[fadeIn_0.3s_ease-out]";
+            div.id = `container-${id}`;
+            
+            div.innerHTML = `
+                <div class="flex-1 flex gap-2">
+                    <input type="text" placeholder="Sumber (Cth: Wep Line 1)" class="w-3/5 bg-slate-800/50 border border-slate-600 rounded-xl px-3 sm:px-4 py-3 text-white focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all text-sm">
+                    <div class="relative w-2/5">
+                        <input type="number" id="${id}" placeholder="IED" step="0.01" min="0" max="100" class="additional-ied-input w-full bg-slate-800/50 border border-slate-600 rounded-xl px-3 sm:px-4 py-3 text-white font-mono focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all pr-8 text-sm">
+                        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">%</span>
+                    </div>
+                </div>
+                <button onclick="removeIedInput('container-${id}')" class="p-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 hover:border-red-500/50 text-red-400 rounded-xl transition-colors shrink-0 flex items-center justify-center h-[46px] sm:h-[50px]">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                </button>
+            `;
+            
+            container.appendChild(div);
+            lucide.createIcons();
+            
+            div.querySelector('input[type="text"]').focus();
+            document.getElementById(id).addEventListener('input', calculateDamage);
+        }
+
+        function removeIedInput(containerId) {
+            const el = document.getElementById(containerId);
+            if (el) {
+                el.remove();
+                calculateDamage();
+            }
+        }
+
+        // Logika Matematika Multiplicative IED
+        function calculateDamage() {
+            let bossPdr = parseFloat(bossPdrSelect.value) || 0;
+            let currentIed = parseFloat(currentIedInput.value) || 0;
+            if (currentIed > 100) currentIed = 100;
+
+            // Multiplier pertahanan (1 - IED/100)
+            let defenseMultiplier = 1 - (currentIed / 100);
+
+            // Kalikan dengan semua extra IED (multiplicative)
+            const additionalInputs = document.querySelectorAll('.additional-ied-input');
+            additionalInputs.forEach(input => {
+                let addIed = parseFloat(input.value);
+                if (!isNaN(addIed) && addIed > 0) {
+                    if (addIed > 100) addIed = 100;
+                    defenseMultiplier *= (1 - (addIed / 100));
+                }
+            });
+
+            // Hitung Total Effective IED
+            let totalEffectiveIed = 100 - (defenseMultiplier * 100);
+            totalEffectiveIedDisplay.innerText = totalEffectiveIed.toFixed(2) + '%';
+
+            // 1. Sisa Defense Bos (PDR * Multiplier)
+            let effectiveBossDef = bossPdr * defenseMultiplier;
+            
+            // 2. Damage Reduction (Maksimal 100%)
+            let damageReduction = effectiveBossDef > 100 ? 100 : effectiveBossDef;
+            
+            // 3. Actual Damage Dealt
+            let damageDealt = 100 - effectiveBossDef;
+            if (damageDealt < 0) damageDealt = 0;
+
+            // Update Tampilan
+            remainingDefDisplay.innerText = effectiveBossDef.toFixed(2) + '%';
+            dmgReductionDisplay.innerText = damageReduction.toFixed(2) + '%';
+            dmgDealtDisplay.innerText = damageDealt.toFixed(2) + '%';
+            
+            // Logika Tier Teks & Warna
+            let tierText = "";
+            let tierClass = "";
+
+            if (bossPdr === 0) {
+                tierText = "Pilih Target Bos";
+                tierClass = "text-slate-400 bg-slate-800 border-slate-600";
+                dmgDealtDisplay.className = "font-mono text-5xl md:text-6xl font-bold tracking-tight mb-3 text-slate-500 transition-colors";
+            } else if (damageDealt < 70) {
+                tierText = "Bad / Needs More IED";
+                tierClass = "text-red-400 bg-red-500/10 border-red-500/30";
+                dmgDealtDisplay.className = "font-mono text-5xl md:text-6xl font-bold tracking-tight mb-3 text-red-500 transition-colors";
+            } else if (damageDealt < 80) {
+                tierText = "Fair / Entry Level";
+                tierClass = "text-amber-400 bg-amber-500/10 border-amber-500/30";
+                dmgDealtDisplay.className = "font-mono text-5xl md:text-6xl font-bold tracking-tight mb-3 text-amber-400 transition-colors";
+            } else if (damageDealt < 88) {
+                tierText = "Ideal / Sweet Spot";
+                tierClass = "text-emerald-400 bg-emerald-500/10 border-emerald-500/30";
+                dmgDealtDisplay.className = "font-mono text-5xl md:text-6xl font-bold tracking-tight mb-3 text-emerald-400 transition-colors";
+            } else {
+                tierText = "Endgame / Super Optimal";
+                tierClass = "text-indigo-400 bg-indigo-500/10 border-indigo-500/30";
+                dmgDealtDisplay.className = "font-mono text-5xl md:text-6xl font-bold tracking-tight mb-3 text-indigo-400 transition-colors";
+            }
+
+            dmgTierDisplay.innerText = tierText;
+            dmgTierDisplay.className = `text-xs sm:text-sm font-bold px-4 py-1.5 rounded-full border transition-all duration-300 ${tierClass}`;
+            
+            // Animasi feedback visual
+            const displays = [remainingDefDisplay, dmgReductionDisplay, dmgDealtDisplay, totalEffectiveIedDisplay];
+            displays.forEach(el => {
+                el.classList.add('scale-105', 'opacity-80');
+                setTimeout(() => el.classList.remove('scale-105', 'opacity-80'), 150);
+            });
+        }
+
+        // Event Listeners
+        calcBtn.addEventListener('click', calculateDamage);
+        addBtn.addEventListener('click', addIedInput);
+        currentIedInput.addEventListener('input', calculateDamage);
+        bossPdrSelect.addEventListener('change', calculateDamage);
+
+        // Jalankan kalkulasi awal
+        calculateDamage();
+    </script>
+</body>
+</html>
